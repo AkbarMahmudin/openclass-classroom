@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model classroom_modules {
+  id          Int        @id @default(autoincrement())
+  classroomId Int
+  moduleId    String     @db.VarChar(255)
+  classrooms  classrooms @relation(fields: [classroomId], references: [id])
+
+  @@index([classroomId], map: "classroom_modules_classroomId_fkey")
+}
+
+model classrooms {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(255)
+  description       String              @db.Text
+  category          String              @db.VarChar(255)
+  level             classrooms_level    @default(Pemula)
+  ownerId           Int                 @db.UnsignedInt
+  classroom_modules classroom_modules[]
+  userClassroom     my_classrooms[]
+}
+
+enum classrooms_level {
+  Pemula
+  Menengah
+  Mahir
+}
+
+model my_classrooms {
+  id                Int                 @id @default(autoincrement())
+  classroomId       Int
+  classrooms        classrooms          @relation(fields: [classroomId], references: [id])
+  userId            Int
+}
